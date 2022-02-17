@@ -6,7 +6,6 @@ namespace App\Repositories;
 
 use App\Models\Phrase;
 use App\Services\HashGenerator;
-use Illuminate\Support\Facades\Log;
 
 class PhraseRepository {
     protected $hashGenerator;
@@ -17,12 +16,11 @@ class PhraseRepository {
 
     public function insert(string $phrase) {
         $hashItems = $this->hashGenerator->generate($phrase);
-        $record = array_merge($hashItems , ['phrase' => $phrase]);
-        return Phrase::create($record);
+        $record = array_merge($hashItems, ['phrase' => $phrase]);
+        return Phrase::query()->upsert($record,'phrase');
     }
 
-    public function search(string $phrase,string $hashingAlgorithm):?Phrase{
-        Log::debug("find $phrase for hash $hashingAlgorithm");
-        return Phrase::query()->where($hashingAlgorithm,$phrase )->first();
+    public function search(string $phrase, string $hashingAlgorithm): ?Phrase {
+        return Phrase::query()->where($hashingAlgorithm, $phrase)->first();
     }
 }
